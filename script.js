@@ -115,7 +115,6 @@ const popularWords = [
   "ШЕЛЬФ",
   "ШКВАЛ",
 ];
-
 let historyArray = [];
 
 //Генерирует рандомное число в пределах min max
@@ -209,18 +208,58 @@ function isWordsEqueal(word, currentAttempt, attempts) {
   }
   if (hiddenLetters.toString() == attemptWord.toString()) {
     alert("Слово угадано!");
-    return true;
+    setTimeout(10000);
+    newGame();
   }
 }
 
-let currentAttempt = 1;
-let hiddenWord = getNewWordAndAddInHistory(historyArray); //работает
-
-function checkTheAttempt(current) {
-  let attempts = document.querySelector(".input-text").children;
-  isWordsEqueal(hiddenWord, currentAttempt, attempts);
-  currentAttempt = activeAttempt(currentAttempt, attempts);
+function isThereAnyAttempts(attempt) {
+  return attempt <= 5 ? false : true;
 }
 
-let buttont = document.querySelector(".input-buttonCheck");
-buttont.addEventListener("click", () => checkTheAttempt());
+let newGameButton = document.querySelector(".button-NewGame");
+newGameButton.addEventListener("click", () => newGame());
+
+//сброс игры до "первоначального" состояния
+function gameReset(attempts) {
+  for (let i = 0; i < attempts.length; i++) {
+    for (let j = 0; j < attempts[i].children.length; j++) {
+      if (attempts[i].children[j].classList.contains("completelyCorrect")) {
+        attempts[i].children[j].classList.remove("completelyCorrect");
+        document
+          .getElementById(`${attempts[i].children[j].value}`)
+          .classList.remove("completelyCorrect");
+      } else if (
+        attempts[i].children[j].classList.contains("partiallyCorrect")
+      ) {
+        attempts[i].children[j].classList.remove("partiallyCorrect");
+        document
+          .getElementById(`${attempts[i].children[j].value}`)
+          .classList.remove("completelyCorrect");
+      }
+      attempts[i].children[j].value = "";
+    }
+    console.log(`строка ${i} отключена`);
+  }
+}
+
+//Создает новую игру
+function newGame() {
+  let attempts = document.querySelector(".input-text").children;
+  gameReset(attempts);
+  activeAttempt(0, attempts);
+  let currentAttempt = 1;
+  let hiddenWord = getNewWordAndAddInHistory(historyArray); //работает
+  console.warn(historyArray);
+  function checkTheAttempt() {
+    if (isThereAnyAttempts(currentAttempt)) {
+      alert("Попытки кончились");
+      newGame();
+    }
+    isWordsEqueal(hiddenWord, currentAttempt, attempts);
+    currentAttempt = activeAttempt(currentAttempt, attempts);
+  }
+
+  let buttont = document.querySelector(".input-buttonCheck");
+  buttont.addEventListener("click", () => checkTheAttempt());
+}
