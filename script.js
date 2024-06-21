@@ -1,9 +1,9 @@
 "use strict";
 
-const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("");
-// letters.forEach((element) => {
-//   console.log(element);
-// });
+const letters = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("");
+//Алфавит, для заполнения блока "Буквы"
+
+//Создание заполнения блока "Буквы"
 const out = letters
   .map(
     (letter) =>
@@ -11,8 +11,10 @@ const out = letters
   )
   .join("");
 
+//заполнения блока "Буквы"
 document.querySelector(".letters-area").innerHTML = out;
 
+//Слова, которые используются для загадывания игрой
 const popularWords = [
   "РАМПА",
   "МАСОН",
@@ -115,6 +117,9 @@ const popularWords = [
   "ШЕЛЬФ",
   "ШКВАЛ",
 ];
+
+//массив, который хранит в себе не больше 10 последних слов
+//нужен для того, чтобы слова не повторялись
 let historyArray = [];
 
 //Генерирует рандомное число в пределах min max
@@ -127,8 +132,8 @@ function getTheWordFromArray(words) {
   return words[getRandomInt(0, words.length)];
 }
 
-//Добавляет сгенерированное слово в массив[10], если этого слово там нет, иначе генерирует другое
-//После всего возвращает слово
+//Добавляет сгенерированное слово в массив[10], если этого слово там нет,
+//иначе генерирует другое; После всего возвращает слово
 function getNewWordAndAddInHistory(lastTenWords) {
   let word;
   while (lastTenWords.includes(word) || word == undefined) {
@@ -142,7 +147,8 @@ function getNewWordAndAddInHistory(lastTenWords) {
   }
   return word;
 }
-//Получает буквы из введенной попытки
+
+//Получает буквы слова из введенной попытки
 function getLettersFromAttempt(nameOfClass) {
   let letters = [];
   let attempt = document.querySelector(nameOfClass);
@@ -152,27 +158,28 @@ function getLettersFromAttempt(nameOfClass) {
   return letters;
 }
 
+//устанавливает какие строки ввода будут активны
+//в зависимости от номера попытки
 function activeAttempt(currentAttempt, attempts) {
   if (currentAttempt == 0);
-
-  //если строка != текущей строке, то возможность ввода отключается, иначе включается
+  //если строка != текущей строке, то возможность ввода отключается,
+  //иначе включается
+  //цикл проходится по каждому элементу input
   for (let i = 0; i < attempts.length; i++) {
     if (i == currentAttempt) {
       for (let j = 0; j < attempts[i].children.length; j++) {
         attempts[i].children[j].disabled = false;
-        // console.log(attempts[i].children[j]);
       }
       console.log(`строка ${i} включена`);
       continue;
     }
     for (let j = 0; j < attempts[i].children.length; j++) {
       attempts[i].children[j].disabled = true;
-      // console.log(attempts[i].children[j]);
     }
     console.log(`строка ${i} отключена`);
   }
   console.log(`попытка ${currentAttempt}`);
-  currentAttempt++;
+  currentAttempt++; //устанавливает номер следующей попытки
   return currentAttempt;
 }
 
@@ -184,13 +191,24 @@ function isWordsEqueal(word, currentAttempt, attempts) {
     getLettersFromAttempt(".attempt-three"),
     getLettersFromAttempt(".attempt-four"),
     getLettersFromAttempt(".attempt-five"),
-  ];
+  ]; //получает значения ввода каждой из попыток
+  //в виде массива букв
+
   const hiddenLetters = Array.from(word);
+  //переводит загаданное слово в массив букв для
+  //удобного сравнения
   let attempt = currentAttempt - 1;
+  //получает номер введенной (уже предыдущей получается)
+  //попытки (поэтому -1)
   const attemptWord = allAttempts[attempt];
+  //получает значение введенной попытки
   const currentInput = attempts[attempt].children;
+  //получает всю строчку ввода в виде html
 
   console.log(hiddenLetters, attemptWord, attempt);
+  //накидывает на <input> класс в зависимости от
+  //того, совпадает ли буква с загаданным словом
+  //и совпадает ли позиция этой буквы в слове
   for (let i = 0; i < 5; i++) {
     if (hiddenLetters.includes(attemptWord[i])) {
       if (attemptWord[i] == hiddenLetters[i]) {
@@ -206,17 +224,21 @@ function isWordsEqueal(word, currentAttempt, attempts) {
       }
     }
   }
+  //Если пользователь вводит верное слово целиком
+  //выводится уведомление об этом и начинается новая игра
   if (hiddenLetters.toString() == attemptWord.toString()) {
     alert("Слово угадано!");
-    setTimeout(10000);
-    newGame();
+    setTimeout(newGame, 5000); //вызов функции "newGame"
+    //спустя 5 секунд
   }
 }
 
+//счетчик попыток
 function isThereAnyAttempts(attempt) {
   return attempt <= 5 ? false : true;
 }
 
+//кнопка "новая игра"
 let newGameButton = document.querySelector(".button-NewGame");
 newGameButton.addEventListener("click", () => newGame());
 
@@ -245,21 +267,31 @@ function gameReset(attempts) {
 
 //Создает новую игру
 function newGame() {
+  //получает все строчки всех попыток в виде html
   let attempts = document.querySelector(".input-text").children;
+  //сбрасывает игру
   gameReset(attempts);
+  //разблокировка первой строки для ввода
   activeAttempt(0, attempts);
+  //установка номера попытки
   let currentAttempt = 1;
-  let hiddenWord = getNewWordAndAddInHistory(historyArray); //работает
-  console.warn(historyArray);
+  //генерация нового задуманного слова
+  //и запись в массив с историей
+  let hiddenWord = getNewWordAndAddInHistory(historyArray);
+  console.debug(hiddenWord);
+  //функция проверки попытки
   function checkTheAttempt() {
+    //проверка на количество попыток
     if (isThereAnyAttempts(currentAttempt)) {
       alert("Попытки кончились");
       newGame();
     }
+    //проверка на совпадения
     isWordsEqueal(hiddenWord, currentAttempt, attempts);
+    //изменение номера попытки
     currentAttempt = activeAttempt(currentAttempt, attempts);
   }
-
+  //кнопка "Проверить"
   let buttont = document.querySelector(".input-buttonCheck");
   buttont.addEventListener("click", () => checkTheAttempt());
 }
