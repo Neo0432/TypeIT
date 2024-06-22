@@ -257,7 +257,7 @@ function gameReset(attempts) {
         attempts[i].children[j].classList.remove("partiallyCorrect");
         document
           .getElementById(`${attempts[i].children[j].value}`)
-          .classList.remove("completelyCorrect");
+          .classList.remove("partiallyCorrect");
       }
       attempts[i].children[j].value = "";
     }
